@@ -6,7 +6,7 @@ A web portal for running a university's academic records: students register cour
 
 | | |
 |---|---|
-| Live application | _added on deployment_ |
+| Live application | https://uemp.oabubakar2019.workers.dev |
 | Architecture & design | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | Database design & ER diagram | [docs/DATABASE.md](docs/DATABASE.md) |
 | Security & permissions | [docs/SECURITY.md](docs/SECURITY.md) |
