@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AppError } from '@/domain/errors';
+import { isPortal, portalFor } from '@/domain/portals';
 import { ROLE_HOME } from '@/domain/roles';
 import { signInSchema } from '@/lib/validation';
 import { getDb } from '../db/client';
@@ -13,14 +14,19 @@ import { toFailure, type ActionState } from './safe-action';
 export async function signInAction(_previous: ActionState, form: FormData): Promise<ActionState> {
   const parsed = signInSchema.safeParse({ email: form.get('email'), password: form.get('password') });
   if (!parsed.success) return { ok: false, message: 'Enter your email and password.' };
+  const portal = String(form.get('portal') ?? '');
+  if (!isPortal(portal)) return { ok: false, message: 'Unknown portal.' };
 
   let destination: string;
   try {
     const db = await getDb();
-    const session = await signIn(db, parsed.data.email, parsed.data.password, {
-      ipAddress: await clientIp(),
-      userAgent: (await headers()).get('user-agent')?.slice(0, 300) ?? null,
-    });
+    const session = await signIn(
+      db,
+      parsed.data.email,
+      parsed.data.password,
+      { ipAddress: await clientIp(), userAgent: (await headers()).get('user-agent')?.slice(0, 300) ?? null },
+      portal,
+    );
     await setSessionCookie(session.token, session.expiresAt);
     destination = ROLE_HOME[session.role];
   } catch (error) {
@@ -32,10 +38,8 @@ export async function signInAction(_previous: ActionState, form: FormData): Prom
 
 export async function signOutAction() {
   const token = await readSessionToken();
-  if (token) {
-    const actor = await getActor();
-    await signOut(await getDb(), token, actor?.id ?? null);
-  }
+  const actor = await getActor();
+  if (token) await signOut(await getDb(), token, actor?.id ?? null);
   await clearSessionCookie();
-  redirect('/login');
+  redirect(`/login/${actor ? portalFor(actor.role) : 'student'}`);
 }

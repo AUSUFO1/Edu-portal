@@ -1,6 +1,7 @@
 import { Mortarboard01Icon } from '@hugeicons/core-free-icons';
 import type { ReactNode } from 'react';
 import { Icon } from '@/components/ui/icon';
+import { UNIVERSITY_NAME } from '@/domain/portals';
 import { formatDateTime } from '@/lib/format';
 import { PrintButton } from './PrintButton';
 
@@ -16,7 +17,7 @@ export function PrintDocument({ title, subtitle, details, children }: { title: s
           <Icon icon={Mortarboard01Icon} size={26} />
         </span>
         <div>
-          <p className="font-display text-xl font-bold text-navy">University Education Management Portal</p>
+          <p className="font-display text-xl font-bold text-navy">{UNIVERSITY_NAME}</p>
           <p className="text-sm text-ink/60">Office of the Registrar · Academic Records</p>
         </div>
       </header>

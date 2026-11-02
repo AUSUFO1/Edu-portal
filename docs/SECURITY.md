@@ -15,6 +15,7 @@
   - Only the token's SHA-256 digest is stored in the database, so a leaked database can't be used to log in.
   - Sessions last 12 hours.
 - **Every request re-validates** the session against the database and the account status. Suspending, deactivating, resetting the password or changing the role deletes the user's sessions immediately.
+- **Separate portals:** the Student, Staff and Admin portals each sign in only their own roles. The check runs after the password is verified, so it reveals nothing to someone guessing.
 - **No account enumeration:** unknown emails and wrong passwords get the same message and take the same time (a dummy hash is verified when the email doesn't exist).
 - **Brute-force protection:** after 5 failed attempts for an email, or 30 from one IP address, within 15 minutes, sign-in is refused for 15 minutes. Attempts are stored in the database, so the limit holds across all Worker instances.
 

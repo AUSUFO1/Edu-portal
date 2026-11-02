@@ -205,6 +205,13 @@ describe('Authentication and account security', () => {
     expect(actor?.role).toBe('lecturer');
   });
 
+  it('only lets each portal sign in its own roles', async () => {
+    await expect(signIn(db, EMAILS.lecturerMth, DEMO_PASSWORD, meta, 'student')).rejects.toSatisfy((e) => e instanceof AppError && /Staff Portal/.test(e.message));
+    await expect(signIn(db, EMAILS.hodMth, DEMO_PASSWORD, meta, 'admin')).rejects.toSatisfy((e) => code(e) === 'FORBIDDEN');
+    await expect(signIn(db, EMAILS.hodMth, DEMO_PASSWORD, meta, 'staff')).resolves.toMatchObject({ role: 'department_admin' });
+    await expect(signIn(db, EMAILS.registrar, DEMO_PASSWORD, meta, 'admin')).resolves.toMatchObject({ role: 'super_admin' });
+  });
+
   it('gives the same answer for a wrong password and an unknown email', async () => {
     const wrong = await signIn(db, EMAILS.lecturerMth, 'not-the-password', meta).catch((e: AppError) => e.message);
     const unknown = await signIn(db, 'nobody@uemp.edu.ng', 'not-the-password', meta).catch((e: AppError) => e.message);

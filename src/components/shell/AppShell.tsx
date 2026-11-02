@@ -2,6 +2,7 @@ import { Logout01Icon, Mortarboard01Icon } from '@hugeicons/core-free-icons';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Icon } from '@/components/ui/icon';
+import { PORTAL_LABEL, portalFor, UNIVERSITY_NAME } from '@/domain/portals';
 import { ROLE_HOME, ROLE_LABEL } from '@/domain/roles';
 import { termLabel } from '@/lib/format';
 import { signOutAction } from '@/server/actions/auth';
@@ -19,7 +20,7 @@ export async function AppShell({ actor, children }: { actor: Actor; children: Re
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="no-print sticky top-0 hidden h-dvh flex-col bg-navy px-4 py-6 text-cream lg:flex">
-        <Brand href={ROLE_HOME[actor.role]} />
+        <Brand href={ROLE_HOME[actor.role]} portal={PORTAL_LABEL[portalFor(actor.role)]} />
         <nav className="mt-8 flex-1 overflow-y-auto" aria-label="Main">
           <NavLinks items={items} />
         </nav>
@@ -28,7 +29,7 @@ export async function AppShell({ actor, children }: { actor: Actor; children: Re
 
       <div className="min-w-0">
         <header className="no-print relative flex items-center justify-between gap-3 bg-navy px-4 py-3 text-cream lg:hidden">
-          <Brand href={ROLE_HOME[actor.role]} />
+          <Brand href={ROLE_HOME[actor.role]} portal={PORTAL_LABEL[portalFor(actor.role)]} />
           <MobileNav items={items} />
         </header>
 
@@ -59,15 +60,15 @@ export async function AppShell({ actor, children }: { actor: Actor; children: Re
   );
 }
 
-function Brand({ href }: { href: string }) {
+function Brand({ href, portal }: { href: string; portal: string }) {
   return (
     <Link href={href} className="flex items-center gap-2.5">
       <span className="grid size-9 place-items-center rounded-xl bg-cream text-navy">
         <Icon icon={Mortarboard01Icon} size={20} />
       </span>
       <span className="leading-tight">
-        <span className="block font-display text-base font-bold">University Portal</span>
-        <span className="block text-[11px] uppercase tracking-[0.16em] text-cream/60">Education Management</span>
+        <span className="block font-display text-base font-bold">{UNIVERSITY_NAME}</span>
+        <span className="block text-[11px] uppercase tracking-[0.16em] text-cream/60">{portal}</span>
       </span>
     </Link>
   );

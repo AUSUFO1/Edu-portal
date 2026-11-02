@@ -3,6 +3,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { forbidden } from '@/domain/errors';
+import { portalFor } from '@/domain/portals';
 import { ROLE_HOME, type Role } from '@/domain/roles';
 import { getDb } from '../db/client';
 import { actorFromToken } from '../services/auth.service';
@@ -46,7 +47,7 @@ export async function clientIp() {
 /** For pages and layouts: sends signed-out users to login and other roles to their own home. */
 export async function requirePageRole(...roles: Role[]): Promise<Actor> {
   const actor = await getActor();
-  if (!actor) redirect('/login');
+  if (!actor) redirect(`/login/${portalFor(roles[0] ?? 'student')}`);
   if (!roles.includes(actor.role)) redirect(ROLE_HOME[actor.role]);
   return actor;
 }

@@ -14,7 +14,15 @@ A web portal for running a university's academic records: students register cour
 
 ## Test accounts
 
-All demo accounts use the password **`Portal@2026`**.
+There are three sign-in portals, each accepting only its own roles:
+
+| Portal | URL | Who |
+|---|---|---|
+| Student Portal | `/login/student` | Students |
+| Staff Portal | `/login/staff` | Lecturers and department admins |
+| Admin Portal | `/login/admin` | Super admins (registry) |
+
+All demo accounts use the password **`Portal@2026`**. The university name is set with `NEXT_PUBLIC_UNIVERSITY_NAME` (default: Crestfield University, a fictional name).
 
 | Role | Email | What to try |
 |---|---|---|
@@ -90,7 +98,7 @@ docs/                Architecture, database, security and deployment documentati
 npm test
 ```
 
-38 tests. The integration tests run every workflow against a real PostgreSQL engine (in memory), including:
+39 tests. The integration tests run every workflow against a real PostgreSQL engine (in memory), including:
 - concurrent double submissions;
 - stale-version conflicts;
 - cross-department access attempts;

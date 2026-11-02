@@ -1,5 +1,6 @@
 import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import { AppError } from '@/domain/errors';
+import { PORTAL_LABEL, PORTAL_ROLES, portalFor, type Portal } from '@/domain/portals';
 import type { Role } from '@/domain/roles';
 import type { Actor } from '../auth/actor';
 import { DUMMY_HASH, verifyPassword } from '../auth/password';
@@ -23,8 +24,9 @@ interface RequestMeta {
 /**
  * Verifies credentials and opens a session. Returns the raw token for the cookie.
  * Failures are deliberately vague so the form never reveals whether an email exists.
+ * `portal` restricts which roles may sign in through that login page.
  */
-export async function signIn(db: Database, email: string, password: string, meta: RequestMeta) {
+export async function signIn(db: Database, email: string, password: string, meta: RequestMeta, portal?: Portal) {
   await assertNotLockedOut(db, email, meta.ipAddress);
 
   const [user] = await db
@@ -40,6 +42,10 @@ export async function signIn(db: Database, email: string, password: string, meta
   }
   if (user.status !== 'active') {
     throw new AppError('FORBIDDEN', `This account is ${user.status}. Please contact the registry.`);
+  }
+  // Checked only after the password is verified, so it reveals nothing to someone guessing.
+  if (portal && !PORTAL_ROLES[portal].includes(user.role)) {
+    throw new AppError('FORBIDDEN', `This account cannot sign in here. Please use the ${PORTAL_LABEL[portalFor(user.role)]}.`);
   }
 
   const token = newSessionToken();
