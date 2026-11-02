@@ -15,7 +15,9 @@
       //   npx wrangler hyperdrive create uemp-db --connection-string="<Neon connection string>"
       // then paste the returned id here.
       "binding": "HYPERDRIVE",
-      "id": "690cb52bdbeb42cc9b61d1666bce980a"
+      "id": "690cb52bdbeb42cc9b61d1666bce980a",
+      // Only read by local tooling (OpenNext's deploy step starts a local proxy); never used in production.
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/uemp"
     }
   ],
   "observability": { "enabled": true }
