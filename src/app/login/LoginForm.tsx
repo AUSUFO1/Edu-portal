@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionForm, Field, Input, SubmitButton } from '@/components/ui/form';
+import { ActionForm, Field, Input, PasswordInput, SubmitButton } from '@/components/ui/form';
 import { signInAction } from '@/server/actions/auth';
 
 export function LoginForm() {
@@ -10,7 +10,7 @@ export function LoginForm() {
         <Input name="email" type="email" autoComplete="username" required autoFocus />
       </Field>
       <Field name="password" label="Password">
-        <Input name="password" type="password" autoComplete="current-password" required />
+        <PasswordInput name="password" autoComplete="current-password" required />
       </Field>
       <div className="pt-2 [&>button]:w-full">
         <SubmitButton>Sign in</SubmitButton>

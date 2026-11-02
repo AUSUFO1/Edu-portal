@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/ui/form';
+import { ActionForm, Field, Input, PasswordInput, Select, SubmitButton } from '@/components/ui/form';
 import { LEVELS } from '@/domain/registration';
 import {
   changeRoleAction,
@@ -26,7 +26,7 @@ function PersonFields() {
         <Input name="email" type="email" autoComplete="off" />
       </Field>
       <Field name="password" label="Initial password" hint="At least 10 characters with a letter and a number">
-        <Input name="password" type="password" autoComplete="new-password" />
+        <PasswordInput name="password" autoComplete="new-password" />
       </Field>
     </>
   );
@@ -174,7 +174,7 @@ export function AccountControls({ userId, status, role, canManageAccounts }: { u
         <ActionForm action={resetPasswordAction} resetOnSuccess>
           <input type="hidden" name="userId" value={userId} />
           <Field name="password" label="Set new password">
-            <Input name="password" type="password" autoComplete="new-password" />
+            <PasswordInput name="password" autoComplete="new-password" />
           </Field>
           <div className="mt-2">
             <SubmitButton size="sm">Reset password</SubmitButton>

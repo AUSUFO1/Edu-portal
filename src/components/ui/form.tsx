@@ -1,7 +1,9 @@
 'use client';
 
-import { createContext, useActionState, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { ViewIcon, ViewOffSlashIcon } from '@hugeicons/core-free-icons';
+import { createContext, useActionState, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
+import { Icon } from './icon';
 import type { ActionState } from '@/server/actions/safe-action';
 
 type Action = (state: ActionState, form: FormData) => Promise<ActionState>;
@@ -102,6 +104,34 @@ export function Field({
 export function Input({ name, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { name: string }) {
   const error = useFieldError(name);
   return <input id={name} name={name} className="input" aria-invalid={error ? true : undefined} aria-describedby={error ? `${name}-error` : undefined} {...props} />;
+}
+
+/** Password field with a show/hide toggle. */
+export function PasswordInput({ name, ...props }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & { name: string }) {
+  const [visible, setVisible] = useState(false);
+  const error = useFieldError(name);
+  return (
+    <div className="relative">
+      <input
+        id={name}
+        name={name}
+        type={visible ? 'text' : 'password'}
+        className="input pr-11"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${name}-error` : undefined}
+        {...props}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+        className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-xl text-ink/45 hover:text-navy"
+      >
+        <Icon icon={visible ? ViewOffSlashIcon : ViewIcon} size={18} />
+      </button>
+    </div>
+  );
 }
 
 export function Select({ name, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { name: string }) {

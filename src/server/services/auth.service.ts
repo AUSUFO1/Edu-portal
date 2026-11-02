@@ -95,8 +95,7 @@ export async function actorFromToken(db: Database, token: string): Promise<Actor
     .limit(1);
 
   if (!row || row.status !== 'active') return null;
-  const { status: _status, ...actor } = row;
-  return actor;
+  return { id: row.id, email: row.email, firstName: row.firstName, lastName: row.lastName, role: row.role, departmentId: row.departmentId };
 }
 
 export async function signOut(db: Database, token: string, actorId: string | null) {
