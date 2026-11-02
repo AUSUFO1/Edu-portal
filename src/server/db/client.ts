@@ -45,6 +45,8 @@ function createLocalDb(): Promise<Database> {
   // Kept on globalThis so hot reloads in development reuse one connection.
   globalForDb.__uempLocalDb ??= (async () => {
     if (process.env.DATABASE_URL) return createPostgresDb(process.env.DATABASE_URL, { max: 10 });
+    // NODE_ENV is inlined at build time, so the embedded database never ships in a production bundle.
+    if (process.env.NODE_ENV === 'production') throw new Error('No database configured: bind HYPERDRIVE or set DATABASE_URL.');
     const { openLocalDatabase } = await import('./local');
     return openLocalDatabase();
   })();
