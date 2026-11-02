@@ -15,7 +15,7 @@
       //   npx wrangler hyperdrive create uemp-db --connection-string="<Neon connection string>"
       // then paste the returned id here.
       "binding": "HYPERDRIVE",
-      "id": "REPLACE_WITH_HYPERDRIVE_ID"
+      "id": "690cb52bdbeb42cc9b61d1666bce980a"
     }
   ],
   "observability": { "enabled": true }
