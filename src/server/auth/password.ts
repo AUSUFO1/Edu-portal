@@ -1,14 +1,18 @@
 /**
  * Password hashing with PBKDF2-HMAC-SHA256 through the Web Crypto API.
  *
- * Web Crypto runs natively on Cloudflare Workers and in Node, so hashing does not burn the
- * Worker's JavaScript CPU budget the way a pure-JS bcrypt would. 100,000 iterations is the
- * maximum Workers allows and is in line with OWASP guidance for PBKDF2-SHA256 at this platform limit.
+ * Web Crypto runs natively on Cloudflare Workers and in Node.
+ *
+ * Cost trade-off: the deployment runs on the Workers free plan, which allows ~10 ms of CPU per
+ * request, while PBKDF2 CPU time grows linearly with iterations (100,000 takes 50-200 ms). The
+ * work factor is therefore set to fit that budget. Every hash stores its own iteration count, and
+ * `needsRehash` upgrades a user's hash on their next sign-in, so raising ITERATIONS on a paid plan
+ * (OWASP recommends 600,000 for PBKDF2-SHA256) needs no migration.
  *
  * Stored format: pbkdf2-sha256$<iterations>$<salt base64>$<hash base64>
  */
 const ALGORITHM = 'pbkdf2-sha256';
-const ITERATIONS = 100_000;
+const ITERATIONS = 3_000;
 const SALT_BYTES = 16;
 const KEY_BITS = 256;
 
@@ -23,6 +27,12 @@ export async function verifyPassword(password: string, stored: string): Promise<
   if (algorithm !== ALGORITHM || !iterations || !salt || !hash) return false;
   const candidate = await derive(password, fromBase64(salt), Number(iterations));
   return timingSafeEqual(candidate, fromBase64(hash));
+}
+
+/** True when a stored hash was made with a different work factor and should be replaced. */
+export function needsRehash(stored: string) {
+  const [algorithm, iterations] = stored.split('$');
+  return algorithm !== ALGORITHM || Number(iterations) !== ITERATIONS;
 }
 
 /**

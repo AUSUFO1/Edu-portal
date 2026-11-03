@@ -3,7 +3,7 @@ import { AppError } from '@/domain/errors';
 import { PORTAL_LABEL, PORTAL_ROLES, portalFor, type Portal } from '@/domain/portals';
 import type { Role } from '@/domain/roles';
 import type { Actor } from '../auth/actor';
-import { DUMMY_HASH, verifyPassword } from '../auth/password';
+import { DUMMY_HASH, hashPassword, needsRehash, verifyPassword } from '../auth/password';
 import { newSessionToken, sessionIdFromToken } from '../auth/tokens';
 import type { Database, Executor } from '../db/client';
 import { authSessions, loginAttempts, users } from '../db/schema';
@@ -54,7 +54,9 @@ export async function signIn(db: Database, email: string, password: string, meta
 
   await db.transaction(async (tx) => {
     await tx.insert(authSessions).values({ id: sessionId, userId: user.id, expiresAt, ...meta });
-    await tx.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+    // Transparently upgrade hashes made with an older work factor.
+    const rehash = needsRehash(user.passwordHash) ? { passwordHash: await hashPassword(password) } : {};
+    await tx.update(users).set({ lastLoginAt: new Date(), ...rehash }).where(eq(users.id, user.id));
     await tx.insert(loginAttempts).values({ email, ipAddress: meta.ipAddress, succeeded: true });
     await recordAudit(tx, { actorId: user.id, action: 'auth.sign_in', entityType: 'user', entityId: user.id, ipAddress: meta.ipAddress });
   });
@@ -64,20 +66,15 @@ export async function signIn(db: Database, email: string, password: string, meta
 
 async function assertNotLockedOut(db: Database, email: string, ipAddress: string | null) {
   const since = new Date(Date.now() - LOCKOUT_WINDOW_MS);
-  const [byEmail] = await db
-    .select({ n: sql<number>`count(*)::int` })
+  // One round trip for both limits (per email and per IP address).
+  const [counts] = await db
+    .select({
+      byEmail: sql<number>`count(*) filter (where lower(${loginAttempts.email}) = ${email.toLowerCase()})::int`,
+      byIp: ipAddress ? sql<number>`count(*) filter (where ${loginAttempts.ipAddress} = ${ipAddress})::int` : sql<number>`0`,
+    })
     .from(loginAttempts)
-    .where(and(eq(sql`lower(${loginAttempts.email})`, email.toLowerCase()), eq(loginAttempts.succeeded, false), gt(loginAttempts.createdAt, since)));
-  let tooMany = (byEmail?.n ?? 0) >= MAX_FAILURES_PER_EMAIL;
-
-  if (!tooMany && ipAddress) {
-    const [byIp] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(loginAttempts)
-      .where(and(eq(loginAttempts.ipAddress, ipAddress), eq(loginAttempts.succeeded, false), gt(loginAttempts.createdAt, since)));
-    tooMany = (byIp?.n ?? 0) >= MAX_FAILURES_PER_IP;
-  }
-  if (tooMany) {
+    .where(and(eq(loginAttempts.succeeded, false), gt(loginAttempts.createdAt, since)));
+  if ((counts?.byEmail ?? 0) >= MAX_FAILURES_PER_EMAIL || (counts?.byIp ?? 0) >= MAX_FAILURES_PER_IP) {
     throw new AppError('RATE_LIMITED', 'Too many failed attempts. Please wait 15 minutes and try again.');
   }
 }
