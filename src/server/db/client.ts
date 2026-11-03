@@ -50,7 +50,15 @@ async function createPostgresDb(url: string, options: { max: number }): Promise<
   // A single pool is created per request (or per process), never per query.
   const [{ default: postgres }, { drizzle }] = await Promise.all([import('postgres'), import('drizzle-orm/postgres-js')]);
   // fetch_types off: avoids an extra round trip per connection (recommended for Hyperdrive).
-  const client = postgres(url, { max: options.max, fetch_types: false, prepare: true, connect_timeout: 10 });
+  const client = postgres(url, {
+    max: options.max,
+    // No pipelining: concurrent queries (e.g. a dashboard's Promise.all) are sent one at a time.
+    // Hyperdrive stalls on pipelined queries over one connection, which left pages loading forever.
+    max_pipeline: 1,
+    fetch_types: false,
+    prepare: true,
+    connect_timeout: 10,
+  });
   return drizzle(client, { schema }) as unknown as Database;
 }
 
