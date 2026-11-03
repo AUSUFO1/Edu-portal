@@ -28,7 +28,7 @@ export function SheetReviewView({ data, backHref, canDecide, actorId }: { data: 
           </Link>
         }
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
         <StatCard label="Status" value={<SheetStatusBadge status={sheet.status} />} />
         <StatCard label="Students scored" value={`${scored.length}/${rows.length}`} />
         <StatCard label="Pass rate" value={scored.length ? `${Math.round((passed / scored.length) * 100)}%` : '—'} />

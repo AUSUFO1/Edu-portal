@@ -12,8 +12,8 @@
   --color-danger: #b42318;
   --color-warn: #b7791f;
 
-  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 html {
@@ -34,7 +34,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 @layer components {
@@ -162,6 +163,70 @@ h3 {
   }
   .table tbody tr:hover {
     background: rgb(29 143 93 / 0.04);
+  }
+}
+
+/* Phones: every data table becomes a list of compact labelled cards (labels come from the column headers). */
+@media (max-width: 639px) {
+  .table-stack thead {
+    display: none;
+  }
+  .table-stack,
+  .table-stack tbody,
+  .table-stack tfoot {
+    display: block;
+    width: 100%;
+  }
+  .table-stack tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(12 59 47 / 0.1);
+    background: #fff;
+  }
+  .table-stack tbody tr:hover {
+    background: #fff;
+  }
+  .table-stack td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    text-align: left !important;
+    overflow-wrap: anywhere;
+  }
+  .table-stack td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.15rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgb(27 23 18 / 0.45);
+  }
+  /* The first column (usually the course or person) heads the card; unlabelled cells hold actions. */
+  .table-stack td:first-child,
+  .table-stack td[data-label=''] {
+    grid-column: 1 / -1;
+  }
+  .table-stack td[data-label='']::before,
+  .table-stack td:not([data-label])::before {
+    display: none;
+  }
+  .table-stack td[data-label=''] > * {
+    margin-left: auto;
+  }
+  .table-stack tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+  .table-stack tfoot td {
+    border: 0;
   }
 }
 

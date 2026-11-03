@@ -18,7 +18,7 @@ export default async function DepartmentDashboard() {
   return (
     <>
       <PageHeader eyebrow={department.facultyName} title={department.name} description="Manage students, lecturers and courses, and approve results submitted by lecturers." />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Pending approval" value={stats.pending} icon={DocumentValidationIcon} tone={stats.pending ? 'attention' : 'default'} />
         <StatCard label="Students" value={stats.students} icon={StudentCardIcon} />
         <StatCard label="Lecturers" value={stats.lecturers} icon={TeacherIcon} />

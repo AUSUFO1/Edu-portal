@@ -27,9 +27,9 @@ export default async function StudentResultsPage() {
         }
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3">
         <StatCard label="CGPA" value={record.totalUnits ? record.cgpa.toFixed(2) : '—'} />
-        <StatCard label="Standing" value={<span className="text-2xl">{record.standing ?? '—'}</span>} />
+        <StatCard label="Standing" value={<span className="text-base sm:text-2xl">{record.standing ?? '—'}</span>} />
         <StatCard label="Units completed" value={record.totalUnits} />
       </div>
 

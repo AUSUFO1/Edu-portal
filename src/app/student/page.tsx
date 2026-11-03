@@ -19,7 +19,7 @@ export default async function StudentDashboard() {
     <>
       <PageHeader eyebrow={profile.matricNumber} title={`Welcome, ${profile.firstName}`} description={`${profile.programName} · ${profile.departmentName} · ${profile.facultyName}`} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Level" value={profile.level} hint={`Entry year ${profile.entryYear}`} />
         <StatCard label="CGPA" value={record.totalUnits ? record.cgpa.toFixed(2) : '—'} hint={record.standing ?? 'No approved results yet'} />
         <StatCard label="Courses this semester" value={current.length} hint={`${units} units registered`} />

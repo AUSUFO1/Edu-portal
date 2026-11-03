@@ -16,7 +16,7 @@ export default async function LecturerHome() {
   return (
     <>
       <PageHeader eyebrow="Lecturer" title={`Good day, ${ctx.actor.firstName}`} description="Enter continuous assessment and examination scores for your courses, save drafts, and submit them for departmental approval." />
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3">
         <StatCard label="Courses this semester" value={current.length} />
         <StatCard label="Students" value={students} hint="Across your current courses" />
         <StatCard label="Results to submit" value={toDo} hint={returned ? `${returned} returned for correction` : undefined} tone={returned ? 'attention' : 'default'} />

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PrintDocument } from '@/components/PrintDocument';
+import { Table } from '@/components/ui/primitives';
 import { DEFAULT_GRADE_SCALE } from '@/domain/grading';
 import { formatScore, termLabel } from '@/lib/format';
 import { requirePageRole } from '@/server/auth/session';
@@ -33,7 +34,7 @@ export default async function ResultStatementPage() {
             <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-navy">
               {s.sessionName} · {termLabel(s.term)}
             </h2>
-            <table className="table">
+            <Table>
               <thead>
                 <tr>
                   <th>Code</th>
@@ -58,7 +59,7 @@ export default async function ResultStatementPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
             <p className="mt-2 text-right text-sm">
               Units: <strong>{s.units}</strong> · GPA: <strong>{s.gpa.toFixed(2)}</strong> · CGPA: <strong>{s.cgpa.toFixed(2)}</strong>
             </p>

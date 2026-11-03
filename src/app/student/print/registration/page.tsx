@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { PrintDocument } from '@/components/PrintDocument';
-import { EmptyState } from '@/components/ui/primitives';
+import { EmptyState, Table } from '@/components/ui/primitives';
 import { formatDateTime, termLabel } from '@/lib/format';
 import { requirePageRole } from '@/server/auth/session';
 import { getDb } from '@/server/db/client';
@@ -31,7 +31,7 @@ export default async function RegistrationSlipPage() {
         ['Level', profile.level],
       ]}
     >
-      <table className="table">
+      <Table>
         <thead>
           <tr>
             <th>S/N</th>
@@ -61,7 +61,7 @@ export default async function RegistrationSlipPage() {
             <td />
           </tr>
         </tfoot>
-      </table>
+      </Table>
       <div className="mt-12 grid grid-cols-2 gap-10 text-sm">
         <p className="border-t border-ink/40 pt-2 text-center">Student&apos;s signature</p>
         <p className="border-t border-ink/40 pt-2 text-center">Level adviser</p>

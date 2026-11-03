@@ -58,7 +58,15 @@ export function ScoreSheet({ offeringId, version, editable, rows }: { offeringId
                 <td>
                   <ScoreInput name={`exam:${r.registrationId}`} value={s.exam} max={EXAM_MAX} disabled={!editable} onChange={(v) => set(r.registrationId, 'exam', v)} label={`Exam for ${r.matricNumber}`} />
                 </td>
-                <Preview ca={s.ca} exam={s.exam} />
+                {(() => {
+                  const preview = previewFor(s.ca, s.exam);
+                  return (
+                    <>
+                      <td className="text-right font-semibold">{preview ? preview.total : <span className="text-ink/35">—</span>}</td>
+                      <td className="text-center">{preview ? <Badge tone={preview.point === 0 ? 'red' : 'green'}>{preview.grade}</Badge> : <span className="text-ink/35">—</span>}</td>
+                    </>
+                  );
+                })()}
               </tr>
             );
           })}
@@ -100,26 +108,11 @@ function ScoreInput({ name, value, max, disabled, onChange, label }: { name: str
 }
 
 /** Live total and grade while typing; the server recalculates both on save. */
-function Preview({ ca, exam }: { ca: string; exam: string }) {
+function previewFor(ca: string, exam: string) {
   const c = Number(ca);
   const e = Number(exam);
   const valid = ca !== '' && exam !== '' && c >= 0 && c <= CA_MAX && e >= 0 && e <= EXAM_MAX;
-  if (!valid) {
-    return (
-      <>
-        <td className="text-right text-ink/35">—</td>
-        <td className="text-center text-ink/35">—</td>
-      </>
-    );
-  }
+  if (!valid) return null;
   const total = totalScore(c, e);
-  const band = gradeFor(total);
-  return (
-    <>
-      <td className="text-right font-semibold">{total}</td>
-      <td className="text-center">
-        <Badge tone={band.point === 0 ? 'red' : 'green'}>{band.grade}</Badge>
-      </td>
-    </>
-  );
+  return { total, ...gradeFor(total) };
 }
