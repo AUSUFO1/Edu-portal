@@ -12,8 +12,8 @@ export type Executor = Database | Transaction;
  * Resolves the database for the current request.
  *
  * - On Cloudflare Workers: one postgres.js client per request over the Hyperdrive binding, keyed on
- *   the request's execution context. Workers cannot share sockets between requests and allow at
- *   most 6 open connections per request, so every query in a request must share one small pool;
+ *   the request's execution context. Workers cannot share sockets between requests and limit open
+ *   connections per request, so every query in a request runs over a single connection;
  *   Hyperdrive keeps the real connection pool to Postgres warm.
  * - Elsewhere with DATABASE_URL: a shared postgres.js pool (migrations, seeding, `next start`).
  * - Otherwise: embedded PGlite in ./.pglite, so the project runs locally with no database install.
@@ -23,7 +23,9 @@ export const getDb = cache(async (): Promise<Database> => {
   if (cloudflare) {
     let db = perRequestDb.get(cloudflare.ctx);
     if (!db) {
-      db = createPostgresDb(cloudflare.connectionString, { max: 4 });
+      // One connection per request: queries queue on it instead of competing for the Worker's
+      // limited sockets (an idle-but-open pool can otherwise wait forever). Hyperdrive pools upstream.
+      db = createPostgresDb(cloudflare.connectionString, { max: 1 });
       perRequestDb.set(cloudflare.ctx, db);
     }
     return db;
@@ -48,7 +50,7 @@ async function createPostgresDb(url: string, options: { max: number }): Promise<
   // A single pool is created per request (or per process), never per query.
   const [{ default: postgres }, { drizzle }] = await Promise.all([import('postgres'), import('drizzle-orm/postgres-js')]);
   // fetch_types off: avoids an extra round trip per connection (recommended for Hyperdrive).
-  const client = postgres(url, { max: options.max, fetch_types: false, prepare: true });
+  const client = postgres(url, { max: options.max, fetch_types: false, prepare: true, connect_timeout: 10 });
   return drizzle(client, { schema }) as unknown as Database;
 }
 
