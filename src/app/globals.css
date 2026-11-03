@@ -196,7 +196,9 @@ h3 {
     padding: 0;
     border: 0;
     text-align: left !important;
-    overflow-wrap: anywhere;
+    /* Desktop cells may be nowrap; in a half-width card they must wrap between words instead. */
+    white-space: normal !important;
+    overflow-wrap: break-word;
   }
   .table-stack td::before {
     content: attr(data-label);

@@ -80,7 +80,7 @@ export function RegistrationForm({ courses, registeredUnits, open, maxUnits }: {
                 <td className="text-right">{c.units}</td>
                 <td>
                   {c.registered ? (
-                    <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
                       <Badge tone="green">Registered</Badge>
                       {open && (
                         // Submits the drop form below with this course (forms cannot be nested inside this one).
@@ -92,7 +92,7 @@ export function RegistrationForm({ courses, registeredUnits, open, maxUnits }: {
                           onClick={(e) => {
                             if (!window.confirm(`Drop ${c.code} – ${c.title}?`)) e.preventDefault();
                           }}
-                          className="text-xs font-bold text-danger hover:underline"
+                          className="whitespace-nowrap text-xs font-bold text-danger hover:underline"
                         >
                           Drop
                         </button>
