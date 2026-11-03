@@ -38,7 +38,7 @@ export function toFailure(error: unknown): ActionState {
   if (error instanceof AppError) return { ok: false, message: error.message, fieldErrors: error.fieldErrors };
   if (isUniqueViolation(error)) return { ok: false, message: 'A record with these details already exists.' };
   if (isForeignKeyViolation(error)) return { ok: false, message: 'This record is still in use and cannot be changed that way.' };
-  console.error('[action] unexpected error', error);
+  console.error(`[action] unexpected error: ${describeError(error)}`);
   return { ok: false, message: 'Something went wrong. Please try again.' };
 }
 
@@ -59,6 +59,18 @@ function flattenIssues(issues: z.core.$ZodIssue[]) {
     errors[key] ??= issue.message;
   }
   return errors;
+}
+
+/** Error message plus the underlying database error (Drizzle wraps it as `cause`), for server logs. */
+export function describeError(error: unknown): string {
+  const parts: string[] = [];
+  let current: unknown = error;
+  for (let i = 0; i < 4 && current; i++) {
+    if (current instanceof Error) parts.push(current.message);
+    else parts.push(String(current));
+    current = (current as { cause?: unknown }).cause;
+  }
+  return parts.join(' <- caused by: ');
 }
 
 function pgCode(error: unknown): string | undefined {

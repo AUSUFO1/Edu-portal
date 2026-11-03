@@ -11,28 +11,41 @@ export type Executor = Database | Transaction;
 /**
  * Resolves the database for the current request.
  *
- * - On Cloudflare Workers: a new postgres.js client per request over the Hyperdrive binding.
- *   Workers cannot share sockets between requests; Hyperdrive keeps the real connection pool warm.
+ * - On Cloudflare Workers: one postgres.js client per request over the Hyperdrive binding, keyed on
+ *   the request's execution context. Workers cannot share sockets between requests and allow at
+ *   most 6 open connections per request, so every query in a request must share one small pool;
+ *   Hyperdrive keeps the real connection pool to Postgres warm.
  * - Elsewhere with DATABASE_URL: a shared postgres.js pool (migrations, seeding, `next start`).
  * - Otherwise: embedded PGlite in ./.pglite, so the project runs locally with no database install.
  */
 export const getDb = cache(async (): Promise<Database> => {
-  const hyperdrive = await hyperdriveConnectionString();
-  if (hyperdrive) return createPostgresDb(hyperdrive, { max: 5 });
+  const cloudflare = await cloudflareRequest();
+  if (cloudflare) {
+    let db = perRequestDb.get(cloudflare.ctx);
+    if (!db) {
+      db = createPostgresDb(cloudflare.connectionString, { max: 4 });
+      perRequestDb.set(cloudflare.ctx, db);
+    }
+    return db;
+  }
   return createLocalDb();
 });
 
-async function hyperdriveConnectionString(): Promise<string | null> {
+const perRequestDb = new WeakMap<object, Promise<Database>>();
+
+async function cloudflareRequest(): Promise<{ ctx: object; connectionString: string } | null> {
   try {
     const { getCloudflareContext } = await import('@opennextjs/cloudflare');
-    const env = getCloudflareContext().env as { HYPERDRIVE?: { connectionString: string } };
-    return env.HYPERDRIVE?.connectionString ?? null;
+    const { env, ctx } = getCloudflareContext();
+    const connectionString = (env as { HYPERDRIVE?: { connectionString: string } }).HYPERDRIVE?.connectionString;
+    return connectionString ? { ctx, connectionString } : null;
   } catch {
     return null; // not running on Cloudflare
   }
 }
 
 async function createPostgresDb(url: string, options: { max: number }): Promise<Database> {
+  // A single pool is created per request (or per process), never per query.
   const [{ default: postgres }, { drizzle }] = await Promise.all([import('postgres'), import('drizzle-orm/postgres-js')]);
   // fetch_types off: avoids an extra round trip per connection (recommended for Hyperdrive).
   const client = postgres(url, { max: options.max, fetch_types: false, prepare: true });
