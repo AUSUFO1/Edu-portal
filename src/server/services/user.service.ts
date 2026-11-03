@@ -157,7 +157,39 @@ export async function departmentLecturers(db: Executor, departmentId: string) {
     .orderBy(asc(users.lastName));
 }
 
+/** A lecturer's own profile, with the number of courses assigned this semester. */
+export async function lecturerProfile(db: Executor, userId: string) {
+  const [row] = await db
+    .select({
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      title: lecturers.title,
+      rank: lecturers.rank,
+      staffNumber: lecturers.staffNumber,
+      phone: lecturers.phone,
+      departmentName: departments.name,
+      facultyName: faculties.name,
+    })
+    .from(lecturers)
+    .innerJoin(users, eq(users.id, lecturers.userId))
+    .innerJoin(departments, eq(departments.id, users.departmentId))
+    .innerJoin(faculties, eq(faculties.id, departments.facultyId))
+    .where(eq(lecturers.userId, userId));
+  if (!row) throw notFound('Lecturer');
+  return row;
+}
+
 // ---------------------------------------------------------------- update
+
+/** Lecturers may change only their phone number; the rest is managed by their department. */
+export async function updateOwnLecturerProfile(ctx: ServiceContext, input: { phone: string | null }) {
+  assertRole(ctx.actor, 'lecturer');
+  await ctx.db.transaction(async (tx) => {
+    await tx.update(lecturers).set({ phone: input.phone }).where(eq(lecturers.userId, ctx.actor.id));
+    await audit(ctx, tx, 'user.update_profile', ctx.actor.id, { fields: ['phone'] });
+  });
+}
 
 /** Students may change only their contact details; academic fields are admin-managed. */
 export async function updateOwnStudentProfile(ctx: ServiceContext, input: { phone: string | null; address: string | null }) {

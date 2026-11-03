@@ -30,7 +30,10 @@ export const NAV: Record<Role, NavItem[]> = {
     { href: '/student/results', label: 'Results', icon: Certificate01Icon },
     { href: '/student/profile', label: 'Profile', icon: UserCircleIcon },
   ],
-  lecturer: [{ href: '/lecturer', label: 'My courses', icon: TeacherIcon }],
+  lecturer: [
+    { href: '/lecturer', label: 'My courses', icon: TeacherIcon },
+    { href: '/lecturer/profile', label: 'Profile', icon: UserCircleIcon },
+  ],
   department_admin: [
     { href: '/department', label: 'Dashboard', icon: DashboardSquare01Icon },
     { href: '/department/results', label: 'Result approvals', icon: DocumentValidationIcon },
