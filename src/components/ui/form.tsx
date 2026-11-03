@@ -33,7 +33,9 @@ export function ActionForm({
   const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (resetOnSuccess && state?.ok) ref.current?.reset();
+    if (!state?.ok) return;
+    if (state.redirectTo) window.location.assign(state.redirectTo);
+    else if (resetOnSuccess) ref.current?.reset();
   }, [state, resetOnSuccess]);
 
   return (

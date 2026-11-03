@@ -17,7 +17,6 @@ export async function signInAction(_previous: ActionState, form: FormData): Prom
   const portal = String(form.get('portal') ?? '');
   if (!isPortal(portal)) return { ok: false, message: 'Unknown portal.' };
 
-  let destination: string;
   try {
     const db = await getDb();
     const session = await signIn(
@@ -28,12 +27,13 @@ export async function signInAction(_previous: ActionState, form: FormData): Prom
       portal,
     );
     await setSessionCookie(session.token, session.expiresAt);
-    destination = ROLE_HOME[session.role];
+    // The browser navigates to the dashboard as a separate request, so sign-in itself stays small
+    // and fast (on Workers each request has its own CPU budget).
+    return { ok: true, message: 'Signed in. Opening your dashboard…', redirectTo: ROLE_HOME[session.role] };
   } catch (error) {
     if (error instanceof AppError) return { ok: false, message: error.message };
     return toFailure(error);
   }
-  redirect(destination);
 }
 
 export async function signOutAction() {

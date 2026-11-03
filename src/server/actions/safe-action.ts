@@ -3,7 +3,7 @@ import { unstable_rethrow } from 'next/navigation';
 import type { z } from 'zod';
 import { AppError } from '@/domain/errors';
 
-export type ActionState = { ok: true; message: string } | { ok: false; message: string; fieldErrors?: Record<string, string> } | null;
+export type ActionState = { ok: true; message: string; redirectTo?: string } | { ok: false; message: string; fieldErrors?: Record<string, string> } | null;
 
 /**
  * Wraps a server action used with `useActionState`:
