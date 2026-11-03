@@ -3,9 +3,10 @@
 ## Authentication
 
 - **Passwords:**
-  - Hashed with PBKDF2-HMAC-SHA256: 100,000 iterations (the Cloudflare Workers maximum), a 16-byte random salt per password, through the native Web Crypto API.
-  - Hashes are compared in constant time.
-  - New passwords need at least 10 characters, with at least one letter and one number. Length is preferred over complexity rules, following NIST SP 800-63B.
+  - Hashed with PBKDF2-HMAC-SHA256 (a 16-byte random salt per password) through the native Web Crypto API, and compared in constant time.
+  - **Work factor trade-off:** the demo runs on the Cloudflare Workers free plan, which allows about 10 ms of CPU per request. PBKDF2's cost grows with its iteration count, so the count is set to fit that budget (3,000).
+  - Every hash records its own iteration count, and a user's hash is upgraded automatically on their next sign-in. On a paid plan, raising the constant to OWASP's 600,000 needs no migration.
+  - New passwords need at least 10 characters, with a letter and a number. Length is preferred over complexity rules, following NIST SP 800-63B.
 - **Sessions:**
   - A session is a random 256-bit token kept in a cookie with these settings:
     - `HttpOnly`, so scripts can't read it;
