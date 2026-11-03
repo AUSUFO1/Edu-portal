@@ -42,7 +42,7 @@ export default async function AuditPage() {
                   {e.entityType}
                   <span className="block font-mono text-[10px] text-ink/45">{e.entityId.slice(0, 13)}</span>
                 </td>
-                <td className="max-w-md">
+                <td className="max-w-md max-sm:col-span-2">
                   <code className="block truncate text-[11px] text-ink/65" title={JSON.stringify(e.details)}>
                     {JSON.stringify(e.details)}
                   </code>

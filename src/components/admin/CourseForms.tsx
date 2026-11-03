@@ -75,7 +75,7 @@ export function CreateCourseForm({ departments, programs }: { departments: { id:
 
 export function CourseRowActions({ courseId, isActive, canOffer }: { courseId: string; isActive: boolean; canOffer: boolean }) {
   return (
-    <div className="flex justify-end gap-2">
+    <div className="flex flex-wrap justify-end gap-2">
       {canOffer && (
         <ActionForm action={offerCourseAction}>
           <input type="hidden" name="courseId" value={courseId} />
@@ -96,9 +96,9 @@ export function CourseRowActions({ courseId, isActive, canOffer }: { courseId: s
 export function AllocateForm({ offeringId, lecturers }: { offeringId: string; lecturers: { id: string; name: string }[] }) {
   if (lecturers.length === 0) return null;
   return (
-    <ActionForm action={allocateLecturerAction} className="flex gap-1.5">
+    <ActionForm action={allocateLecturerAction} className="flex min-w-0 gap-1.5">
       <input type="hidden" name="offeringId" value={offeringId} />
-      <select name="lecturerId" className="input h-8 text-xs" aria-label="Lecturer to assign" defaultValue="">
+      <select name="lecturerId" className="input h-8 min-w-0 text-xs" aria-label="Lecturer to assign" defaultValue="">
         <option value="" disabled>
           Assign lecturer…
         </option>

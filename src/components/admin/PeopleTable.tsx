@@ -63,11 +63,11 @@ export function PeopleTable({ people, kind, viewerRole }: { people: Person[]; ki
 
 export function SearchBox({ value, extra }: { value: string; extra?: Record<string, string> }) {
   return (
-    <form method="get" className="no-print flex gap-2">
+    <form method="get" className="no-print flex w-full gap-2 sm:w-auto">
       {Object.entries(extra ?? {}).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
-      <input type="search" name="q" defaultValue={value} placeholder="Search name, email or number" className="input h-9 w-64" aria-label="Search" />
+      <input type="search" name="q" defaultValue={value} placeholder="Search name, email or number" className="input h-9 min-w-0 flex-1 sm:w-64 sm:flex-none" aria-label="Search" />
       <button type="submit" className="btn btn-secondary btn-sm">
         Search
       </button>

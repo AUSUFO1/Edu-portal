@@ -140,7 +140,7 @@ export function AccountControls({ userId, status, role, canManageAccounts }: { u
   return (
     <details className="relative">
       <summary className="btn btn-secondary btn-sm cursor-pointer list-none">Manage</summary>
-      <div className="absolute right-0 z-20 mt-2 w-72 space-y-4 rounded-2xl border border-ink/10 bg-paper p-4 text-left shadow-xl">
+      <div className="absolute right-0 z-20 mt-2 w-[min(18rem,calc(100vw-3rem))] space-y-4 rounded-2xl border border-ink/10 bg-paper p-4 text-left shadow-xl">
         {canManageAccounts && (
           <ActionForm action={setAccountStatusAction}>
             <input type="hidden" name="userId" value={userId} />

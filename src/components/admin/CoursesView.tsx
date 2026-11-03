@@ -49,8 +49,8 @@ export function CoursesView({
                   <td className="text-right">{c.units}</td>
                   <td>{c.level}</td>
                   <td className="capitalize">{c.term}</td>
-                  <td>{c.offeringId ? <Badge tone="green">Offered · {c.registered} registered</Badge> : c.isActive ? <Badge>Not offered</Badge> : <Badge tone="red">Inactive</Badge>}</td>
-                  <td className="min-w-56">
+                  <td className="max-sm:col-span-2">{c.offeringId ? <Badge tone="green">Offered · {c.registered} registered</Badge> : c.isActive ? <Badge>Not offered</Badge> : <Badge tone="red">Inactive</Badge>}</td>
+                  <td className="max-sm:col-span-2 sm:min-w-56">
                     {c.offeringId ? (
                       <div className="space-y-1.5">
                         {c.lecturers.map((l) => (
