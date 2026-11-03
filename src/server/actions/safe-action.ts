@@ -22,7 +22,11 @@ export function formAction<S extends z.ZodType>(
   return async (_previous: ActionState, form: FormData): Promise<ActionState> => {
     const parsed = schema.safeParse(parse(form));
     if (!parsed.success) {
-      return { ok: false, message: 'Please correct the highlighted fields.', fieldErrors: flattenIssues(parsed.error.issues) };
+      const fieldErrors = flattenIssues(parsed.error.issues);
+      const messages = Object.values(fieldErrors);
+      // A single problem is stated outright; several point the user to the marked fields.
+      const message = messages.length === 1 ? messages[0]! : `Please fix the ${messages.length} marked fields.`;
+      return { ok: false, message, fieldErrors };
     }
     try {
       const message = await handler(parsed.data);

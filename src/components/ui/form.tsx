@@ -20,12 +20,14 @@ export function ActionForm({
   className,
   resetOnSuccess = false,
   confirm,
+  id,
 }: {
   action: Action;
   children: ReactNode;
   className?: string;
   resetOnSuccess?: boolean;
   confirm?: string;
+  id?: string;
 }) {
   const [state, formAction] = useActionState(action, null);
   const ref = useRef<HTMLFormElement>(null);
@@ -38,6 +40,7 @@ export function ActionForm({
     <FormStateContext.Provider value={state}>
       <form
         ref={ref}
+        id={id}
         action={formAction}
         className={className}
         noValidate
@@ -143,10 +146,24 @@ export function Select({ name, children, ...props }: React.SelectHTMLAttributes<
   );
 }
 
-export function SubmitButton({ children, variant = 'primary', name, value, size }: { children: ReactNode; variant?: 'primary' | 'secondary' | 'danger'; name?: string; value?: string; size?: 'sm' }) {
+export function SubmitButton({
+  children,
+  variant = 'primary',
+  name,
+  value,
+  size,
+  disabled = false,
+}: {
+  children: ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger';
+  name?: string;
+  value?: string;
+  size?: 'sm';
+  disabled?: boolean;
+}) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" name={name} value={value} disabled={pending} aria-busy={pending} className={`btn btn-${variant} ${size === 'sm' ? 'btn-sm' : ''}`}>
+    <button type="submit" name={name} value={value} disabled={pending || disabled} aria-busy={pending} className={`btn btn-${variant} ${size === 'sm' ? 'btn-sm' : ''}`}>
       {pending ? 'Working…' : children}
     </button>
   );

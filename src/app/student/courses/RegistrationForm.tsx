@@ -78,35 +78,45 @@ export function RegistrationForm({ courses, registeredUnits, open, maxUnits }: {
                   </span>
                 </td>
                 <td className="text-right">{c.units}</td>
-                <td>{c.registered ? <Badge tone="green">Registered</Badge> : <span className="text-ink/45">Not registered</span>}</td>
+                <td>
+                  {c.registered ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Badge tone="green">Registered</Badge>
+                      {open && (
+                        // Submits the drop form below with this course (forms cannot be nested inside this one).
+                        <button
+                          type="submit"
+                          form="drop-course"
+                          name="offeringId"
+                          value={c.offeringId}
+                          onClick={(e) => {
+                            if (!window.confirm(`Drop ${c.code} – ${c.title}?`)) e.preventDefault();
+                          }}
+                          className="text-xs font-bold text-danger hover:underline"
+                        >
+                          Drop
+                        </button>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-ink/45">Not registered</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </Table>
         {open && (
           <div className="mt-5 flex justify-end">
-            <SubmitButton>{selectedCourses.length ? `Register ${selectedCourses.length} course${selectedCourses.length > 1 ? 's' : ''}` : 'Register selected'}</SubmitButton>
+            <SubmitButton disabled={selectedCourses.length === 0}>
+              {selectedCourses.length ? `Register ${selectedCourses.length} course${selectedCourses.length > 1 ? 's' : ''}` : 'Select courses to register'}
+            </SubmitButton>
           </div>
         )}
       </ActionForm>
 
-      {open && courses.some((c) => c.registered) && (
-        <div className="mt-6 border-t border-ink/10 pt-5">
-          <p className="mb-3 text-sm font-bold text-navy">Drop a course</p>
-          <div className="flex flex-wrap gap-2">
-            {courses
-              .filter((c) => c.registered)
-              .map((c) => (
-                <ActionForm key={c.offeringId} action={dropCourseAction} confirm={`Drop ${c.code}?`}>
-                  <input type="hidden" name="offeringId" value={c.offeringId} />
-                  <SubmitButton variant="danger" size="sm">
-                    Drop {c.code}
-                  </SubmitButton>
-                </ActionForm>
-              ))}
-          </div>
-        </div>
-      )}
+      {/* Shared drop form: each Drop button above posts its own course ID here; the outcome shows below. */}
+      {open && <ActionForm id="drop-course" action={dropCourseAction} className="mt-2">{null}</ActionForm>}
     </>
   );
 }

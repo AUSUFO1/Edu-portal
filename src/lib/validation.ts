@@ -76,6 +76,15 @@ export const createAdminSchema = z.object({
   departmentId: id.nullable().optional().transform((v) => v ?? null),
 });
 
+const phone = z
+  .string()
+  .trim()
+  .regex(/^\+?[0-9 ]{7,20}$/, 'Enter a valid phone number, e.g. 0803 123 4567')
+  .or(z.literal(''))
+  .transform((v) => (v === '' ? null : v));
+
+export const lecturerProfileSchema = z.object({ phone });
+
 export const studentProfileSchema = z.object({
   phone: z
     .string()
@@ -123,7 +132,7 @@ export const courseSchema = z.object({
 export const allocationSchema = z.object({ offeringId: id, lecturerId: id });
 
 export const registerCoursesSchema = z.object({
-  offeringIds: z.array(id).min(1, 'Select at least one course').max(15),
+  offeringIds: z.array(id).default([]).pipe(z.array(id).min(1, 'Select at least one course to register.').max(15, 'You can register at most 15 courses at once.')),
 });
 
 /**
