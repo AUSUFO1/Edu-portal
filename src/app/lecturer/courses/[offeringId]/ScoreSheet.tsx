@@ -33,7 +33,6 @@ export function ScoreSheet({ offeringId, version, editable, rows }: { offeringId
       <Table>
         <thead>
           <tr>
-            <th>#</th>
             <th>Matric number</th>
             <th>Name</th>
             <th className="w-28">CA /{CA_MAX}</th>
@@ -43,11 +42,10 @@ export function ScoreSheet({ offeringId, version, editable, rows }: { offeringId
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => {
+          {rows.map((r) => {
             const s = scores[r.registrationId]!;
             return (
               <tr key={r.registrationId}>
-                <td className="text-ink/50">{i + 1}</td>
                 <td className="font-semibold whitespace-nowrap">{r.matricNumber}</td>
                 <td className="whitespace-nowrap">
                   {r.lastName}, {r.firstName}
